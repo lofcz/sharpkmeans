@@ -45,4 +45,16 @@ public static class Math2
 
         return result;
     }
+
+    public static float[] Divide(float[] a, float b)
+    {
+        float[] result = new float[a.Length];
+
+        for (int i = 0; i < a.Length; ++i)
+        {
+            result[i] = a[i] / b;
+        }
+
+        return result;
+    }
 }

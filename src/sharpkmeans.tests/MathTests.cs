@@ -87,4 +87,29 @@ public class Tests
         float d = Math2.DotProduct(substract, substract);
         Assert.That(Utils.EqualsWithinTolerance(d, 148.107849f));
     }
+
+    [Test]
+    public void TestInitializePlusPlus()
+    {
+        float[][] data =
+        {
+            new[] { 2.96344151f, -4.42131868f },
+            new[] { 1.26602074f, 8.39772187f },
+            new[] { 2.01808794f, -4.51346909f },
+            new[] { 3.83647058f, -2.84047361f },
+            new[] { 0.76237044f, 6.57874511f },
+            new[] { 0.39273814f, 6.08370994f },
+            new[] { 0.08831868f, 6.06607272f },
+            new[] { -0.71830665f, 5.49211115f },
+            new[] { 4.41018092f, -5.75672895f },
+            new[] { 5.50133289f, -2.92350011f }
+        };
+
+        float[][] initialize = KMeans.InitializePlusPlus(2, data, 5);
+
+        Assert.That(Utils.EqualsWithinTolerance(initialize[0][0], 0.392738134f));
+        Assert.That(Utils.EqualsWithinTolerance(initialize[0][1], 6.08370972f));
+        Assert.That(Utils.EqualsWithinTolerance(initialize[1][0], 4.41018105f));
+        Assert.That(Utils.EqualsWithinTolerance(initialize[1][1], -5.75672913f));
+    }
 }

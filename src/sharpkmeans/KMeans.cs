@@ -5,7 +5,30 @@ public class KMeansSettings
     public static readonly KMeansSettings Default = new KMeansSettings();
     
     public int Iterations { get; set; } = 50;
+    public float? RequiredDifferenceBetweenIterations { get; set; } = 0.1e-5f;
 }
+
+/// <summary>
+/// Computed datapoint
+/// </summary>
+/// <param name="Index">Index in input collection</param>
+/// <param name="Vector">Input vector</param>
+/// <param name="Cluster">Index of output cluster</param>
+public record KMeansDatapoint(int Index, float[] Vector, int Cluster);
+
+/// <summary>
+/// Computed cluster
+/// </summary>
+/// <param name="Position">Space in the input space</param>
+public record KMeansCluster(float[] Position);
+
+/// <summary>
+/// Output of <see cref="KMeans.Evaluate"/>
+/// </summary>
+/// <param name="Clusters">Computed centroids</param>
+/// <param name="Datapoints">Input data assigned to <see cref="Clusters"/></param>
+/// <param name="IterationDifferences">Convergence report</param>
+public record KMeansResult(KMeansCluster[] Clusters, KMeansDatapoint[] Datapoints, List<float> IterationDifferences);
 
 public static class KMeans
 {
@@ -104,15 +127,47 @@ public static class KMeans
         return centroids;
     }
     
-    public static void Evaluate(int clusters, float[][] data, KMeansSettings? settings = null)
+    public static KMeansResult Evaluate(int clusters, IEnumerable<IEnumerable<float>> data, KMeansSettings? settings = null)
     {
+        float[][] enumeratedData = data.Select(x => x.ToArray()).ToArray();
+        
         settings ??= KMeansSettings.Default;
-        float[][] centroids = InitializePlusPlus(clusters, data);
-
+        float[][] centroids = InitializePlusPlus(clusters, enumeratedData);
+        List<float> differences = new();
+        int[] labels = new int[enumeratedData.Length];
+        
         for (int i = 0; i < settings.Iterations; ++i)
         {
-            int[] labels = ClosestCentroids(data, centroids);
-            float[][] nextCentroids = ComputeCentroids(data, labels, clusters);
+            labels = ClosestCentroids(enumeratedData, centroids);
+            float[][] nextCentroids = ComputeCentroids(enumeratedData, labels, clusters);
+            float diff = Math2.Difference(centroids, nextCentroids);
+            differences.Add(diff);
+            
+            if (settings.RequiredDifferenceBetweenIterations is not null)
+            {
+                if (diff < settings.RequiredDifferenceBetweenIterations.Value)
+                {
+                    break;
+                }
+            }
+
+            centroids = nextCentroids;
         }
+
+        KMeansCluster[] resultClusters = new KMeansCluster[clusters];
+
+        for (int i = 0; i < clusters; ++i)
+        {
+            resultClusters[i] = new KMeansCluster(centroids[i]);
+        }
+
+        KMeansDatapoint[] resultDatapoints = new KMeansDatapoint[enumeratedData.Length];
+
+        for (int i = 0; i < enumeratedData.Length; ++i)
+        {
+            resultDatapoints[i] = new KMeansDatapoint(i, enumeratedData[i], labels[i]);
+        }
+        
+        return new KMeansResult(resultClusters, resultDatapoints, differences);
     }
 }

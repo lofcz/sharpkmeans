@@ -54,4 +54,19 @@ public static class Math2
 
         return result;
     }
+
+    public static float Difference(float[][] a, float[][] b)
+    {
+        float diff = 0;
+        
+        for (int i = 0; i < a.Length; ++i)
+        {
+            for (int j = 0; j < a[0].Length; ++j)
+            {
+                diff += Math.Abs(a[i][j] - b[i][j]);
+            }
+        }
+
+        return diff;
+    }
 }

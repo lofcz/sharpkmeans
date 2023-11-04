@@ -16,4 +16,16 @@ public static class Math2
 
         return result;
     }
+
+    public static float SquaredEuclideanDistance(float[] a, float[] b)
+    {
+        float[] diffs = new float[a.Length];
+        
+        for (int i = 0; i < a.Length; i++)
+        {
+            diffs[i] = a[i] - b[i];
+        }
+
+        return diffs.Aggregate(0f, (f, f1) => f + f1 * f1);
+    }
 }

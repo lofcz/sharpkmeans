@@ -45,4 +45,25 @@ public class Tests
         float[] gm = Math2.GeometricMean(points);
         Assert.That(Utils.EqualsWithinTolerance(gm, new [] { 1.75f, 1.75f, 2.75f }));
     }
+    
+    [Test]
+    public void TestSquaredEuclideanDistance()
+    {
+        float d = Math2.SquaredEuclideanDistance(new [] { 0f, 0f }, new [] { 4f, 4f});
+        Assert.That(Utils.EqualsWithinTolerance(d, 32f));
+    }
+    
+    [Test]
+    public void TestSquaredEuclideanDistance2()
+    {
+        float d = Math2.SquaredEuclideanDistance(new [] { 0f, 0f, 9f, 100f }, new [] { 4f, 4f, 9f, 0f});
+        Assert.That(Utils.EqualsWithinTolerance(d, 10032f));
+    }
+    
+    [Test]
+    public void TestSquaredEuclideanDistance3()
+    {
+        float d = Math2.SquaredEuclideanDistance(new [] { 0f, 0.2f, 0.1f, 0.05f }, new [] { 6.9f, 0, 2, 10});
+        Assert.That(Utils.EqualsWithinTolerance(d, 150.2625f));
+    }
 }

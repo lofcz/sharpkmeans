@@ -66,4 +66,25 @@ public class Tests
         float d = Math2.SquaredEuclideanDistance(new [] { 0f, 0.2f, 0.1f, 0.05f }, new [] { 6.9f, 0, 2, 10});
         Assert.That(Utils.EqualsWithinTolerance(d, 150.2625f));
     }
+    
+    [Test]
+    public void TestSubstract()
+    {
+        float[] a = { -4.6961695f, 7.2027797f };
+        float[] b = { 6.16681858f, 1.71612863f };
+        
+        float[] d = Math2.Substract(a, b);
+        Assert.That(Utils.EqualsWithinTolerance(d, new [] { -10.8629875f, 5.48665142f }));
+    }
+    
+    [Test]
+    public void TestDotProduct()
+    {
+        float[] a = { -4.6961695f, 7.2027797f };
+        float[] b = { 6.16681858f, 1.71612863f };
+        float[] substract = Math2.Substract(a, b);
+        
+        float d = Math2.DotProduct(substract, substract);
+        Assert.That(Utils.EqualsWithinTolerance(d, 148.107849f));
+    }
 }

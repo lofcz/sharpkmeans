@@ -78,16 +78,41 @@ public static class KMeans
 
         return labels;
     }
+
+    public static float[][] ComputeCentroids(float[][] data, int[] labels, int clusters)
+    {
+        float[][] centroids = Utils.CreateJaggedArray2D(clusters, data[0].Length);
+        List<float[]> points = new();
+        
+        for (int i = 0; i < clusters; ++i)
+        {
+            points.Clear();    
+            
+            for (int j = 0; j < labels.Length; ++j)
+            {
+                if (labels[j] != i)
+                {
+                    continue;
+                }
+
+                points.Add(data[j]);
+            }
+
+            centroids[i] = Math2.Mean(points);
+        }
+
+        return centroids;
+    }
     
     public static void Evaluate(int clusters, float[][] data, KMeansSettings? settings = null)
     {
         settings ??= KMeansSettings.Default;
         float[][] centroids = InitializePlusPlus(clusters, data);
-        float[] labels = new float[data.Length];
 
         for (int i = 0; i < settings.Iterations; ++i)
         {
-            
+            int[] labels = ClosestCentroids(data, centroids);
+            float[][] nextCentroids = ComputeCentroids(data, labels, clusters);
         }
     }
 }

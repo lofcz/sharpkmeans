@@ -8,45 +8,6 @@ public class Tests
     }
 
     [Test]
-    public void TestGeometricMean()
-    {
-        float[][] points = {
-            new [] { 0f, 0f },
-            new [] { 10f, 10f }
-        };
-        
-        float[] gm = Math2.GeometricMean(points);
-        Assert.That(Utils.EqualsWithinTolerance(gm, new [] { 5f, 5f }));
-    }
-    
-    [Test]
-    public void TestGeometricMean2()
-    {
-        float[][] points = {
-            new [] { 0f, 0f },
-            new [] { 1f, 0f },
-            new [] { 2f, 3f }
-        };
-        
-        float[] gm = Math2.GeometricMean(points);
-        Assert.That(Utils.EqualsWithinTolerance(gm, new [] { 1f, 1f }));
-    }
-    
-    [Test]
-    public void TestGeometricMean3()
-    {
-        float[][] points = {
-            new [] { 0f, 0f, 1f },
-            new [] { 1f, 0f, 0f },
-            new [] { 2f, 3f, 8f },
-            new [] { 4f, 4f, 2f }
-        };
-        
-        float[] gm = Math2.GeometricMean(points);
-        Assert.That(Utils.EqualsWithinTolerance(gm, new [] { 1.75f, 1.75f, 2.75f }));
-    }
-    
-    [Test]
     public void TestSquaredEuclideanDistance()
     {
         float d = Math2.SquaredEuclideanDistance(new [] { 0f, 0f }, new [] { 4f, 4f});
@@ -164,6 +125,61 @@ public class Tests
         for (int i = 0; i < correct.Length; i++)
         {
             Assert.That(correct[i], Is.EqualTo(closest[i]));
+        }
+    }
+    
+    [Test]
+    public void TestMean()
+    {
+        List<float[]> data = new()
+        {
+            new[] { 1.26602074f, 8.39772187f },
+            new[] { 0.76237044f, 6.57874511f },
+            new[] { 0.39273814f, 6.08370994f },
+            new[] { 0.08831868f, 6.06607272f },
+            new[] { -0.71830665f, 5.49211115f }
+        };
+
+        float[] initialize = Math2.Mean(data);
+        
+        Assert.That(Utils.EqualsWithinTolerance(initialize[0], 0.358228266f));
+        Assert.That(Utils.EqualsWithinTolerance(initialize[1], 6.52367258f));
+    }
+    
+    [Test]
+    public void TestComputeCentroids()
+    {
+        float[][] data =
+        {
+            new[] { 2.96344151f, -4.42131868f },
+            new[] { 1.26602074f, 8.39772187f },
+            new[] { 2.01808794f, -4.51346909f },
+            new[] { 3.83647058f, -2.84047361f },
+            new[] { 0.76237044f, 6.57874511f },
+            new[] { 0.39273814f, 6.08370994f },
+            new[] { 0.08831868f, 6.06607272f },
+            new[] { -0.71830665f, 5.49211115f },
+            new[] { 4.41018092f, -5.75672895f },
+            new[] { 5.50133289f, -2.92350011f }
+        };
+
+        float[][] initialize = KMeans.InitializePlusPlus(3, data, 5);
+        int[] closest = KMeans.ClosestCentroids(data, initialize);
+        float[][] nextCentroids = KMeans.ComputeCentroids(data, closest, 3);
+
+        float[][] correct = 
+        {
+            new [] { 0.358228266f, 6.52367258f },
+            new [] { 3.13057017f, -4.89717245f },
+            new [] { 4.66890144f, -2.88198686f }
+        };
+
+        for (int i = 0; i < correct.Length; i++)
+        {
+            for (int j = 0; j < correct[i].Length; j++)
+            {
+                Assert.That(Utils.EqualsWithinTolerance(nextCentroids[i][j], correct[i][j]));
+            }
         }
     }
 }

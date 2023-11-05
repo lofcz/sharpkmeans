@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace sharpkmeans.tests;
 
 public class Tests
@@ -225,6 +227,14 @@ public class Tests
 
         float sum = vals.Sum();
         Assert.That(Utils.EqualsWithinTolerance(0, sum, Utils.ToleranceHigh));
+    }
+    
+    [Test]
+    public void TestNormalPValue()
+    {
+        float[] data = { 1f, 1.2f, 0.2f, 0.3f, -1f, -0.2f, -0.6f, -0.8f, 0.8f, 0.1f };
+        double val = Math2.NormalPValue(data);
+        Assert.That(Utils.EqualsWithinTolerance(val, 0.84287974862815096d));
     }
     
     [Test]

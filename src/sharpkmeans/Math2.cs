@@ -1,10 +1,21 @@
+using System.Numerics;
 namespace sharpkmeans;
 
 public static class Math2
 {
     public const float Sqrt2Pi = 2.506628274631f;
-    public const float TwoOverSqrtPi = 1.12837916709551f;
+    public const double TwoOverSqrtPi = 1.12837916709551d;
     
+    private static readonly BigInteger[] factorialsTable = new BigInteger[101];
+
+    static Math2()
+    {
+        for (int i = 0; i < factorialsTable.Length; ++i)
+        {
+            factorialsTable[i] = Factorial(i, false);
+        }
+    }
+
     public static float SquaredEuclideanDistance(float[] a, float[] b)
     {
         float[] diffs = new float[a.Length];
@@ -85,23 +96,54 @@ public static class Math2
         return (float)Math.Sqrt(accu);
     }
 
-    public static float NormalCdf(float x, float u, float variance)
+    public static float NormalPdf(float x, float u = 0f, float variance = 1f)
     {
         return (float)(1 / (variance * Sqrt2Pi) * Math.Exp(-(Math.Pow(x - u, 2) / (2 * Math.Pow(variance, 2)))));
     }
     
-    public static float NormalErf(float x)
+    public static double NormalCdf(float x, float u = 0f, float variance = 1f)
     {
-        float oX = x;
+        double d = (x - u) / Math.Sqrt(2 * Math.Pow(variance, 2));
+        double e = NormalErf(d) + 1;
+        return e / 2f;
+    }
+    
+    public static double NormalErf(double x)
+    {
+        double accu = x;
         
         for (int n = 1; n < 100; ++n) 
         {
-            float d = 2 * n + 1;
-            float p = (float)(Math.Pow(oX, d) / (Factorial(n) * d));
-            x += n % 2 == 1 ? -p : p;
+            double d = 2 * n + 1;
+            double p = Math.Pow(x, (int)d) / ((double)Factorial(n) * d);
+            accu += n % 2 == 1 ? -p : p;
         }
 
-        return TwoOverSqrtPi * x;    
+        double t = accu * TwoOverSqrtPi;
+        return t;
+    }
+    
+    public static double NormalPValue(float[] data)
+    {
+        if (data.Length < 5)
+        {
+            return 0;
+        }
+
+        data = Normalize(data);
+        data = data.Order().ToArray(); 
+        double s = data.Select(t => NormalCdf(t)).Select((cdf, i) => (2 * i + 1) * Math.Log(cdf) + (2 * (data.Length - (i + 1)) + 1) * Math.Log(1 - cdf)).Sum();
+
+        double a2 = -data.Length - 1 / (double)data.Length * s;
+        a2 *= 1 + 0.75 / data.Length + 2.25 / Math.Pow(data.Length, 2);
+
+        return a2 switch
+        {
+            >= 0.6f => Math.Exp(1.2937 - 5.709 * a2 + 0.0186 * Math.Pow(a2, 2)),
+            > 0.34f => Math.Exp(0.9177 - 4.279 * a2 - 1.38 * Math.Pow(a2, 2)),
+            > 0.2f => 1 - Math.Exp(-8.318 + 42.796 * a2 - 59.938 * Math.Pow(a2, 2)),
+            _ => 1 - Math.Exp(-13.436 + 101.14 * a2 - 223.73 * Math.Pow(a2, 2))
+        };
     }
     
     public static float[] Normalize(float[] data)
@@ -118,19 +160,25 @@ public static class Math2
         return result;
     }
     
-    public static int Factorial(int n)
+    public static BigInteger Factorial(int n, bool lookup = true)
     {
-        if (n is 0 or 1) {
+        if (n is 0 or 1) 
+        {
             return 1;
         }
 
-        int r = 1;
-        
-        for (int i = 1; i <= n; ++i) {
-            r *= i;
+        if (lookup && n <= 100)
+        {
+            return factorialsTable[n];
         }
 
-        return r;
+        BigInteger s = 1;
+        
+        for (int i = 1; i <= n; ++i) {
+            s *= i;
+        }
+        
+        return s;
     }
     
     public static void TestAndersonDarling(float[] data)

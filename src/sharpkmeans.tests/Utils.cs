@@ -16,6 +16,17 @@ public static class Utils
         };
     }
     
+    public static bool EqualsWithinTolerance(double a, double b, double tolerance = Tolerance)
+    {
+        return a switch
+        {
+            double.NaN => double.IsNaN(b),
+            double.NegativeInfinity => double.IsNegativeInfinity(b),
+            double.PositiveInfinity => double.IsPositiveInfinity(b),
+            _ => Math.Abs(a - b) < tolerance
+        };
+    }
+    
     public static bool EqualsWithinTolerance(float[] a, float[] b)
     {
         if (a.Length != b.Length)

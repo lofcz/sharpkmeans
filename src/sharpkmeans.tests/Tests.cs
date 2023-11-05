@@ -242,6 +242,16 @@ public class Tests
     {
         float[] data = { 1f, 1.2f, 0.2f, 0.3f, -1f, -0.2f, -0.6f, -0.8f, 0.8f, 0.1f };
 
-        Math2.TestAndersonDarling(data);
+        bool result = Math2.TestAndersonDarling(data);
+        Assert.That(result, Is.True);
+    }
+    
+    [Test]
+    public void TestAndersonDarling2()
+    {
+        float[] data = { 1f, 1.2f, 0.2f, 0.3f, -1f, -0.2f, -0.6f, -0.8f, 0.8f, 0.1f, 180f };
+
+        bool result = Math2.TestAndersonDarling(data);
+        Assert.That(result, Is.False);
     }
 }

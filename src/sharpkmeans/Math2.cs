@@ -181,18 +181,8 @@ public static class Math2
         return s;
     }
     
-    public static void TestAndersonDarling(float[] data)
+    public static bool TestAndersonDarling(float[] data, float criticality = 0.75f)
     {
-        data = data.Order().ToArray();
-        float mean = Mean(data);
-        float std = StandardDeviation(data, 1);
-        float[] w = new float[data.Length];
-
-        for (int i = 0; i < w.Length; ++i)
-        {
-            w[i] = (data[i] - mean) / std;
-        }
-
-        int z = 0;
+        return NormalPValue(data) >= criticality;
     }
 }

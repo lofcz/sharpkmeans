@@ -1,39 +1,5 @@
 ﻿namespace sharpkmeans;
 
-public class KMeansSettings
-{
-    public static readonly KMeansSettings Default = new KMeansSettings();
-    
-    public int Iterations { get; set; } = 50;
-    public float? RequiredDifferenceBetweenIterations { get; set; } = 0.1e-5f;
-}
-
-/// <summary>
-/// Computed datapoint
-/// </summary>
-/// <param name="Index">Index in input collection</param>
-/// <param name="Vector">Input vector</param>
-/// <param name="Cluster">Index of output cluster</param>
-public record KMeansDatapoint(int Index, float[] Vector, int Cluster);
-
-/// <summary>
-/// Computed cluster
-/// </summary>
-/// <param name="Position">Space in the input space</param>
-public record KMeansCluster(float[] Position);
-
-/// <summary>
-/// Output of <see cref="KMeans.Evaluate"/>
-/// </summary>
-/// <param name="Clusters">Computed centroids</param>
-/// <param name="Datapoints">Input data assigned to <see cref="Clusters"/></param>
-/// <param name="Convergence">Convergence report</param>
-public record KMeansResult(KMeansCluster[] Clusters, KMeansDatapoint[] Datapoints, List<float> Convergence);
-
-public record KMeansClusterWithDatapoints(float[] Position, List<KMeansDatapoint> Datapoints);
-
-public record KMeansResultSilhouette(KMeansResult Result, float SilhouetteCoefficient, int IterationInde);
-
 public static class KMeans
 {
     public static float[][] InitializePlusPlus(int clusters, float[][] data, int? randomSeed = null)
@@ -183,9 +149,7 @@ public static class KMeans
         
         for (int k = clustersMin; k < clustersMax; k++)
         {
-            // create k clusters using kmeans
             KMeansResult result = Evaluate(k, enumerable, settings);
-
             KMeansClusterWithDatapoints[] clusters = new KMeansClusterWithDatapoints[result.Clusters.Length];
 
             for (int i = 0; i < result.Clusters.Length; ++i)

@@ -202,4 +202,36 @@ public class Tests
 
         KMeans.Evaluate(5, 15, data);
     }
+    
+    [Test]
+    public void TestStandardDeviation()
+    {
+        float[] data = { 1f, 1.2f, 0.2f, 0.3f, -1f, -0.2f, -0.6f, -0.8f, 0.8f, 0.1f };
+        float std = Math2.StandardDeviation(data, 1);
+        Assert.That(Utils.EqualsWithinTolerance(std, 0.7571877794400365f));
+    }
+    
+    [Test]
+    public void TestNormalize()
+    {
+        float[] data = { 1f, 1f, 1f, 1f, 2f, 8f };
+        float[] vals = Math2.Normalize(data);
+        float[] correct = { -0.475382626f, -0.475382626f, -0.475382626f, -0.475382626f, -0.118845634f, 2.02037644f };
+
+        for (int i = 0; i < vals.Length; i++)
+        {
+            Assert.That(Utils.EqualsWithinTolerance(vals[i], correct[i]));
+        }
+
+        float sum = vals.Sum();
+        Assert.That(Utils.EqualsWithinTolerance(0, sum, Utils.ToleranceHigh));
+    }
+    
+    [Test]
+    public void TestAndersonDarling()
+    {
+        float[] data = { 1f, 1.2f, 0.2f, 0.3f, -1f, -0.2f, -0.6f, -0.8f, 0.8f, 0.1f };
+
+        Math2.TestAndersonDarling(data);
+    }
 }

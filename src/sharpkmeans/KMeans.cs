@@ -125,7 +125,7 @@ public static class KMeans
                 points.Add(data[j]);
             }
 
-            centroids[i] = Math2.Mean(points);
+            centroids[i] = points.Count == 0 ? data[Random.Shared.Next(data.Length)] : Math2.Mean(points);
         }
 
         return centroids;

@@ -2,16 +2,17 @@ namespace sharpkmeans.tests;
 
 public static class Utils
 {
-    private const float Tolerance = 0.1e-8f;
+    public const float Tolerance = 0.1e-8f;
+    public const float ToleranceHigh = 0.1e-5f;
 
-    public static bool EqualsWithinTolerance(float a, float b)
+    public static bool EqualsWithinTolerance(float a, float b, float tolerance = Tolerance)
     {
         return a switch
         {
             float.NaN => float.IsNaN(b),
             float.NegativeInfinity => float.IsNegativeInfinity(b),
             float.PositiveInfinity => float.IsPositiveInfinity(b),
-            _ => Math.Abs(a - b) < Tolerance
+            _ => Math.Abs(a - b) < tolerance
         };
     }
     

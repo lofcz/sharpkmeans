@@ -3,7 +3,6 @@ namespace sharpkmeans;
 
 public static class Math2
 {
-    public const float Sqrt2Pi = 2.506628274631f;
     public const double TwoOverSqrtPi = 1.12837916709551d;
     
     private static readonly BigInteger[] factorialsTable = new BigInteger[101];
@@ -94,11 +93,6 @@ public static class Math2
         float avg = data.Average();
         float accu = data.Select(x => x - avg).Select(z => z * z / (data.Length - deltaDegreesOfFreedom)).Sum();
         return (float)Math.Sqrt(accu);
-    }
-
-    public static float NormalPdf(float x, float u = 0f, float variance = 1f)
-    {
-        return (float)(1 / (variance * Sqrt2Pi) * Math.Exp(-(Math.Pow(x - u, 2) / (2 * Math.Pow(variance, 2)))));
     }
     
     public static double NormalCdf(float x, float u = 0f, float variance = 1f)

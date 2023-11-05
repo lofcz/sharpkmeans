@@ -96,8 +96,7 @@ public static class KMeans
 
         return centroids;
     }
-
-
+    
     public static float MeanDistancePointToCluster(KMeansDatapoint point, KMeansClusterWithDatapoints cluster)
     {
         float sumOfDistances = 0;
@@ -139,7 +138,6 @@ public static class KMeans
 
         return bestCluster;
     }
-    
     
     public static KMeansResultSilhouette[] Evaluate(int clustersMin, int clustersMax, IEnumerable<IEnumerable<float>> data, KMeansSettings? settings = null)
     {

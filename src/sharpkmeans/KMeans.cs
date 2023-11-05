@@ -27,8 +27,12 @@ public record KMeansCluster(float[] Position);
 /// </summary>
 /// <param name="Clusters">Computed centroids</param>
 /// <param name="Datapoints">Input data assigned to <see cref="Clusters"/></param>
-/// <param name="IterationDifferences">Convergence report</param>
-public record KMeansResult(KMeansCluster[] Clusters, KMeansDatapoint[] Datapoints, List<float> IterationDifferences);
+/// <param name="Convergence">Convergence report</param>
+public record KMeansResult(KMeansCluster[] Clusters, KMeansDatapoint[] Datapoints, List<float> Convergence);
+
+public record KMeansClusterWithDatapoints(float[] Position, List<KMeansDatapoint> Datapoints);
+
+public record KMeansResultSilhouette(KMeansResult Result, float SilhouetteCoefficient, int IterationInde);
 
 public static class KMeans
 {
@@ -126,7 +130,101 @@ public static class KMeans
 
         return centroids;
     }
+
+
+    public static float MeanDistancePointToCluster(KMeansDatapoint point, KMeansClusterWithDatapoints cluster)
+    {
+        float sumOfDistances = 0;
+        foreach (KMeansDatapoint pointInCluster in cluster.Datapoints)
+        {
+            if (pointInCluster == point)
+            {
+                continue;
+            }
+            
+            float diff = Math2.SquaredEuclideanDistance(pointInCluster.Vector, point.Vector);
+            sumOfDistances += diff;
+        }
+        
+        float meanDistance = sumOfDistances / cluster.Datapoints.Count;
+        return meanDistance;
+    }
+
+    public static KMeansClusterWithDatapoints NeighborCluster(KMeansDatapoint point, KMeansClusterWithDatapoints[] clusters)
+    {
+        KMeansClusterWithDatapoints bestCluster = clusters[0];
+        float bestDist = float.MaxValue;
+        
+        foreach (KMeansClusterWithDatapoints t in clusters)
+        {
+            if (t.Datapoints.Contains(point))
+            {
+                continue;
+            }
+
+            float dist = Math2.SquaredEuclideanDistance(point.Vector, t.Position);
+
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                bestCluster = t;
+            }
+        }
+
+        return bestCluster;
+    }
     
+    
+    public static KMeansResultSilhouette[] Evaluate(int clustersMin, int clustersMax, IEnumerable<IEnumerable<float>> data, KMeansSettings? settings = null)
+    {
+        KMeansResultSilhouette[] results = new KMeansResultSilhouette[clustersMax - clustersMin];
+        int idx = 0;
+        IEnumerable<IEnumerable<float>> enumerable = data as IEnumerable<float>[] ?? data.ToArray();
+        
+        for (int k = clustersMin; k < clustersMax; k++)
+        {
+            // create k clusters using kmeans
+            KMeansResult result = Evaluate(k, enumerable, settings);
+
+            KMeansClusterWithDatapoints[] clusters = new KMeansClusterWithDatapoints[result.Clusters.Length];
+
+            for (int i = 0; i < result.Clusters.Length; ++i)
+            {
+                clusters[i] = new KMeansClusterWithDatapoints(result.Clusters[i].Position, new List<KMeansDatapoint>());
+            }
+            
+            foreach (KMeansDatapoint datapoint in result.Datapoints)
+            {
+                clusters[datapoint.Cluster].Datapoints.Add(datapoint);
+            }
+            
+            float silhouetteAccu = 0;
+
+
+            foreach (KMeansClusterWithDatapoints cluster in clusters)
+            {
+                float clusterAccu = 0;
+                
+                foreach (KMeansDatapoint point in cluster.Datapoints)
+                {
+                    float cohesion = MeanDistancePointToCluster(point, clusters[point.Cluster]);
+                    float separation = MeanDistancePointToCluster(point, NeighborCluster(point, clusters));
+                    float silhouetteCoefficient = (separation - cohesion) / Math.Max(separation, cohesion);
+                    clusterAccu += silhouetteCoefficient;
+                }
+
+                clusterAccu /= cluster.Datapoints.Count;
+                silhouetteAccu += clusterAccu;
+            }
+
+            silhouetteAccu /= clusters.Length;
+            results[idx] = new KMeansResultSilhouette(result, silhouetteAccu, idx);
+            idx++;
+        }
+
+        return results.OrderByDescending(x => x.SilhouetteCoefficient).ToArray();
+    }
+
     public static KMeansResult Evaluate(int clusters, IEnumerable<IEnumerable<float>> data, KMeansSettings? settings = null)
     {
         float[][] enumeratedData = data.Select(x => x.ToArray()).ToArray();

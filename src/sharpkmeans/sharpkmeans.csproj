@@ -4,6 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>SharpKMeans</Title>
+        <Authors>Matěj "lofcz" Štágl</Authors>
+        <Description>K-Means++ implementation for the .NET platform, includes Silhoutte k-estimator</Description>
+        <RepositoryUrl>https://github.com/lofcz/sharpkmeans</RepositoryUrl>
+        <PackageTags>kmeans,kmeans++,silhoutte,clustering,anderson-darling,centroids</PackageTags>
     </PropertyGroup>
 
 </Project>
